@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:id="@+id/tvAppTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pokédex"
+            android:textAlignment="center"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/etPokemonSearch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:hint="Enter Pokémon name or ID"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:maxLines="1" />
+
+        <Button
+            android:id="@+id/btnSearch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Search" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tvError"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textAlignment="center"
+            android:textSize="16sp"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/resultContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/ivPokemon"
+                android:layout_width="220dp"
+                android:layout_height="220dp"
+                android:layout_gravity="center_horizontal"
+                android:contentDescription="Pokémon image"
+                android:scaleType="fitCenter" />
+
+            <TextView
+                android:id="@+id/tvPokemonId"
+                style="@style/PokemonDetailText" />
+
+            <TextView
+                android:id="@+id/tvPokemonName"
+                style="@style/PokemonDetailText" />
+
+            <TextView
+                android:id="@+id/tvPokemonTypes"
+                style="@style/PokemonDetailText" />
+
+            <TextView
+                android:id="@+id/tvPokemonDescription"
+                style="@style/PokemonDetailText" />
+
+            <TextView
+                android:id="@+id/tvPokemonHeight"
+                style="@style/PokemonDetailText" />
+
+            <TextView
+                android:id="@+id/tvPokemonWeight"
+                style="@style/PokemonDetailText" />
+
+            <TextView
+                android:id="@+id/tvPokemonCategory"
+                style="@style/PokemonDetailText" />
+
+            <TextView
+                android:id="@+id/tvPokemonAbilities"
+                style="@style/PokemonDetailText" />
+
+            <TextView
+                android:id="@+id/tvPokemonGender"
+                style="@style/PokemonDetailText" />
+
+            <TextView
+                android:id="@+id/tvPokemonHealth"
+                style="@style/PokemonDetailText" />
+
+            <TextView
+                android:id="@+id/tvPokemonAttack"
+                style="@style/PokemonDetailText" />
+
+            <TextView
+                android:id="@+id/tvPokemonDefense"
+                style="@style/PokemonDetailText" />
+
+            <TextView
+                android:id="@+id/tvPokemonSpecialAttack"
+                style="@style/PokemonDetailText" />
+
+            <TextView
+                android:id="@+id/tvPokemonSpecialDefense"
+                style="@style/PokemonDetailText" />
+
+            <TextView
+                android:id="@+id/tvPokemonSpeed"
+                style="@style/PokemonDetailText" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>
