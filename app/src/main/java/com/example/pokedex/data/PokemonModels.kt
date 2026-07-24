@@ -62,7 +62,14 @@ data class PokemonSpeciesResponse(
     val genera: List<GenusEntry>,
 
     @SerializedName("gender_rate")
-    val genderRate: Int
+    val genderRate: Int,
+
+    @SerializedName("evolution_chain")
+    val evolutionChain: EvolutionChainRef
+)
+
+data class EvolutionChainRef(
+    val url: String
 )
 
 data class FlavorTextEntry(
@@ -75,4 +82,40 @@ data class FlavorTextEntry(
 data class GenusEntry(
     val genus: String,
     val language: NamedApiResource
+)
+
+// ---- Home / list screen ----
+
+data class PokemonListResponse(
+    val count: Int,
+    val results: List<NamedApiResource>
+)
+
+// ---- Type filter ----
+
+data class TypeResponse(
+    val pokemon: List<TypePokemonEntry>
+)
+
+data class TypePokemonEntry(
+    val pokemon: NamedApiResource
+)
+
+// ---- Evolution chain ----
+
+data class EvolutionChainResponse(
+    val chain: ChainLink
+)
+
+data class ChainLink(
+    val species: NamedApiResource,
+
+    @SerializedName("evolves_to")
+    val evolvesTo: List<ChainLink>
+)
+
+// UI-only model (not from the network) used to populate the evolution carousel.
+data class EvolutionStage(
+    val name: String,
+    val spriteUrl: String?
 )

@@ -1,0 +1,477 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_dark"
+    android:orientation="vertical"
+    tools:context=".PokemonDetailActivity">
+
+    <!-- Header -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="8dp">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_centerVertical="true"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_back" />
+
+        <TextView
+            android:id="@+id/tvHeaderLogo"
+            style="@style/PixelLogo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="DexWiki" />
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/bg_pokeball_circle"
+            android:padding="5dp"
+            android:src="@drawable/ic_pokeball" />
+
+    </RelativeLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="80dp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tvError"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="80dp"
+        android:gravity="center"
+        android:paddingHorizontal="24dp"
+        android:textColor="@color/text_secondary"
+        android:visibility="gone"
+        tools:text="Pokémon not found." />
+
+    <ScrollView
+        android:id="@+id/scrollContent"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingBottom="32dp">
+
+            <!-- Image -->
+            <FrameLayout
+                android:layout_width="180dp"
+                android:layout_height="180dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="8dp">
+
+                <View
+                    android:id="@+id/imageBackground"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:alpha="0.25"
+                    android:background="@drawable/bg_image_circle" />
+
+                <ImageView
+                    android:id="@+id/ivPokemon"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="16dp"
+                    android:scaleType="fitCenter"
+                    tools:src="@android:drawable/ic_menu_gallery" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tvPokemonName"
+                style="@style/PixelPokemonName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                tools:text="Pikachu" />
+
+            <TextView
+                android:id="@+id/tvPokemonId"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:gravity="center"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp"
+                tools:text="#0025" />
+
+            <!-- Type badges: populated at runtime, one per Pokemon type -->
+            <LinearLayout
+                android:id="@+id/typeBadgeContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:orientation="horizontal" />
+
+            <TextView
+                android:id="@+id/tvDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:lineSpacingExtra="3dp"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                tools:text="Pikachu is a small, yellow, mouse-like Pokémon and the mascot of the Pokémon franchise." />
+
+            <!-- Physical Attribute card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/bg_card"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    style="@style/PixelSectionTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Physical Attribute" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/DetailLabel"
+                            android:text="Height" />
+
+                        <TextView
+                            android:id="@+id/tvHeight"
+                            style="@style/DetailValue"
+                            tools:text="0.4 m" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/DetailLabel"
+                            android:text="Weight" />
+
+                        <TextView
+                            android:id="@+id/tvWeight"
+                            style="@style/DetailValue"
+                            tools:text="6.0 kg" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/DetailLabel"
+                            android:text="Category" />
+
+                        <TextView
+                            android:id="@+id/tvCategory"
+                            style="@style/DetailValue"
+                            tools:text="Mouse" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/DetailLabel"
+                            android:text="Abilities" />
+
+                        <TextView
+                            android:id="@+id/tvAbility"
+                            style="@style/DetailValue"
+                            tools:text="Static" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/DetailLabel"
+                        android:text="Gender" />
+
+                    <TextView
+                        android:id="@+id/tvGender"
+                        style="@style/DetailValue"
+                        tools:text="Male 50% / Female 50%" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Effort Values card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_card"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    style="@style/PixelSectionTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Effort Values" />
+
+                <!-- HP -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/StatLabel"
+                        android:text="Health"
+                        android:textColor="@color/stat_hp" />
+
+                    <TextView
+                        android:id="@+id/tvHpValue"
+                        style="@style/StatValue"
+                        android:textColor="@color/stat_hp"
+                        tools:text="3/15" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/hpPipsRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="14dp"
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal" />
+
+                <!-- Attack -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/StatLabel"
+                        android:text="Attack"
+                        android:textColor="@color/stat_attack" />
+
+                    <TextView
+                        android:id="@+id/tvAttackValue"
+                        style="@style/StatValue"
+                        android:textColor="@color/stat_attack"
+                        tools:text="4/15" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/attackPipsRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="14dp"
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal" />
+
+                <!-- Defense -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/StatLabel"
+                        android:text="Defense"
+                        android:textColor="@color/stat_defense" />
+
+                    <TextView
+                        android:id="@+id/tvDefenseValue"
+                        style="@style/StatValue"
+                        android:textColor="@color/stat_defense"
+                        tools:text="3/15" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/defensePipsRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="14dp"
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal" />
+
+                <!-- Special Attack -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/StatLabel"
+                        android:text="Special Attack"
+                        android:textColor="@color/stat_special_attack" />
+
+                    <TextView
+                        android:id="@+id/tvSpAtkValue"
+                        style="@style/StatValue"
+                        android:textColor="@color/stat_special_attack"
+                        tools:text="3/15" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/spAtkPipsRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="14dp"
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal" />
+
+                <!-- Special Defense -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/StatLabel"
+                        android:text="Special Defense"
+                        android:textColor="@color/stat_special_defense" />
+
+                    <TextView
+                        android:id="@+id/tvSpDefValue"
+                        style="@style/StatValue"
+                        android:textColor="@color/stat_special_defense"
+                        tools:text="3/15" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/spDefPipsRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="14dp"
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal" />
+
+                <!-- Speed -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/StatLabel"
+                        android:text="Speed"
+                        android:textColor="@color/stat_speed" />
+
+                    <TextView
+                        android:id="@+id/tvSpeedValue"
+                        style="@style/StatValue"
+                        android:textColor="@color/stat_speed"
+                        tools:text="6/15" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/speedPipsRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="14dp"
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal" />
+
+            </LinearLayout>
+
+            <!-- Evolutions -->
+            <LinearLayout
+                android:id="@+id/evolutionsSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/PixelSectionTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Evolutions" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="140dp"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/btnEvolutionPrev"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@android:color/transparent"
+                        android:src="@drawable/ic_arrow_left" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvEvolutions"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        tools:listitem="@layout/item_evolution" />
+
+                    <ImageButton
+                        android:id="@+id/btnEvolutionNext"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@android:color/transparent"
+                        android:src="@drawable/ic_arrow_right" />
+
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

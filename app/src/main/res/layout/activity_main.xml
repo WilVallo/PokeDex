@@ -1,136 +1,188 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:background="@color/background_dark"
+    android:paddingHorizontal="20dp"
+    android:paddingTop="24dp"
+    tools:context=".MainActivity">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/tvLogo"
+        style="@style/PixelLogo"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:text="DexWiki"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/tvAppTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Pokédex"
-            android:textAlignment="center"
-            android:textSize="30sp"
-            android:textStyle="bold" />
+    <ImageView
+        android:id="@+id/ivPokeballIcon"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:background="@drawable/bg_pokeball_circle"
+        android:padding="6dp"
+        android:src="@drawable/ic_pokeball"
+        app:layout_constraintBottom_toBottomOf="@id/tvLogo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tvLogo" />
+
+    <FrameLayout
+        android:id="@+id/searchBarContainer"
+        android:layout_width="0dp"
+        android:layout_height="52dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/bg_search_bar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvLogo">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical|start"
+            android:layout_marginStart="16dp"
+            android:src="@drawable/ic_search" />
 
         <EditText
-            android:id="@+id/etPokemonSearch"
+            android:id="@+id/etSearch"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:hint="Enter Pokémon name or ID"
+            android:layout_height="match_parent"
+            android:layout_marginStart="48dp"
+            android:layout_marginEnd="16dp"
+            android:background="@android:color/transparent"
+            android:hint="Search Pokemon by name"
             android:imeOptions="actionSearch"
             android:inputType="text"
-            android:maxLines="1" />
+            android:singleLine="true"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_secondary"
+            android:textSize="14sp" />
+    </FrameLayout>
 
-        <Button
-            android:id="@+id/btnSearch"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Search" />
+    <HorizontalScrollView
+        android:id="@+id/chipScrollView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:scrollbars="none"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/searchBarContainer">
 
-        <ProgressBar
-            android:id="@+id/progressBar"
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupTypes"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="20dp"
-            android:visibility="gone" />
+            app:singleLine="true"
+            app:singleSelection="true">
 
-        <TextView
-            android:id="@+id/tvError"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:textAlignment="center"
-            android:textSize="16sp"
-            android:visibility="gone" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipAll"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:tag="all"
+                android:text="ALL"
+                android:textColor="@color/chip_text_selector"
+                app:chipBackgroundColor="@color/chip_background_selector"
+                app:chipStrokeWidth="0dp" />
 
-        <LinearLayout
-            android:id="@+id/resultContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:orientation="vertical"
-            android:visibility="gone">
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipFire"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:tag="fire"
+                android:text="FIRE"
+                android:textColor="@color/chip_text_selector"
+                app:chipBackgroundColor="@color/chip_background_selector"
+                app:chipStrokeWidth="0dp" />
 
-            <ImageView
-                android:id="@+id/ivPokemon"
-                android:layout_width="220dp"
-                android:layout_height="220dp"
-                android:layout_gravity="center_horizontal"
-                android:contentDescription="Pokémon image"
-                android:scaleType="fitCenter" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipElectric"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:tag="electric"
+                android:text="ELECTRIC"
+                android:textColor="@color/chip_text_selector"
+                app:chipBackgroundColor="@color/chip_background_selector"
+                app:chipStrokeWidth="0dp" />
 
-            <TextView
-                android:id="@+id/tvPokemonId"
-                style="@style/PokemonDetailText" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipWater"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:tag="water"
+                android:text="WATER"
+                android:textColor="@color/chip_text_selector"
+                app:chipBackgroundColor="@color/chip_background_selector"
+                app:chipStrokeWidth="0dp" />
 
-            <TextView
-                android:id="@+id/tvPokemonName"
-                style="@style/PokemonDetailText" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipGrass"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:tag="grass"
+                android:text="GRASS"
+                android:textColor="@color/chip_text_selector"
+                app:chipBackgroundColor="@color/chip_background_selector"
+                app:chipStrokeWidth="0dp" />
 
-            <TextView
-                android:id="@+id/tvPokemonTypes"
-                style="@style/PokemonDetailText" />
+        </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
 
-            <TextView
-                android:id="@+id/tvPokemonDescription"
-                style="@style/PokemonDetailText" />
+    <TextView
+        android:id="@+id/tvPokemonCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="0 Pokemons"
+        android:textColor="@color/text_secondary"
+        android:textSize="13sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/chipScrollView" />
 
-            <TextView
-                android:id="@+id/tvPokemonHeight"
-                style="@style/PokemonDetailText" />
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvPokemonCount" />
 
-            <TextView
-                android:id="@+id/tvPokemonWeight"
-                style="@style/PokemonDetailText" />
+    <TextView
+        android:id="@+id/tvEmptyState"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:gravity="center"
+        android:text="No Pokemon found."
+        android:textColor="@color/text_secondary"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvPokemonCount" />
 
-            <TextView
-                android:id="@+id/tvPokemonCategory"
-                style="@style/PokemonDetailText" />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvPokemonGrid"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="12dp"
+        android:clipToPadding="false"
+        android:paddingBottom="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvPokemonCount"
+        tools:listitem="@layout/item_pokemon_card" />
 
-            <TextView
-                android:id="@+id/tvPokemonAbilities"
-                style="@style/PokemonDetailText" />
-
-            <TextView
-                android:id="@+id/tvPokemonGender"
-                style="@style/PokemonDetailText" />
-
-            <TextView
-                android:id="@+id/tvPokemonHealth"
-                style="@style/PokemonDetailText" />
-
-            <TextView
-                android:id="@+id/tvPokemonAttack"
-                style="@style/PokemonDetailText" />
-
-            <TextView
-                android:id="@+id/tvPokemonDefense"
-                style="@style/PokemonDetailText" />
-
-            <TextView
-                android:id="@+id/tvPokemonSpecialAttack"
-                style="@style/PokemonDetailText" />
-
-            <TextView
-                android:id="@+id/tvPokemonSpecialDefense"
-                style="@style/PokemonDetailText" />
-
-            <TextView
-                android:id="@+id/tvPokemonSpeed"
-                style="@style/PokemonDetailText" />
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-</ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

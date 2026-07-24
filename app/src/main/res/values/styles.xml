@@ -1,11 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="PokemonDetailText">
-        <item name="android:layout_width">match_parent</item>
+    <style name="PixelText">
+        <item name="android:fontFamily">@font/press_start_2p</item>
+    </style>
+
+    <style name="PixelLogo" parent="PixelText">
+        <item name="android:textColor">@color/accent_yellow</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="PixelSectionTitle" parent="PixelText">
+        <item name="android:textColor">@color/accent_yellow</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="PixelPokemonName" parent="PixelText">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="DetailLabel" parent="PixelText">
+        <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">10dp</item>
-        <item name="android:textSize">17sp</item>
+        <item name="android:textColor">@color/accent_yellow</item>
+        <item name="android:textSize">9sp</item>
+    </style>
+
+    <style name="DetailValue" parent="PixelText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <style name="StatLabel" parent="PixelText">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textSize">10sp</item>
+    </style>
+
+    <style name="StatValue" parent="PixelText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">10sp</item>
+    </style>
+
+    <style name="TypeBadgeLabel" parent="PixelText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">7dp</item>
+        <item name="android:textSize">9sp</item>
     </style>
 
 </resources>

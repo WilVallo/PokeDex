@@ -1,321 +1,192 @@
 package com.example.pokedex
 
+import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
-import android.view.inputmethod.EditorInfo
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.bumptech.glide.Glide
+import androidx.recyclerview.widget.GridLayoutManager
+import com.example.pokedex.adapter.PokemonAdapter
+import com.example.pokedex.data.PokemonListResponse
 import com.example.pokedex.data.PokemonResponse
-import com.example.pokedex.data.PokemonSpeciesResponse
+import com.example.pokedex.data.TypeResponse
 import com.example.pokedex.databinding.ActivityMainBinding
 import com.example.pokedex.network.RetrofitClient
+import com.google.android.material.chip.Chip
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.Locale
 
+
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var adapter: PokemonAdapter
 
-    private var pokemonCall: Call<PokemonResponse>? = null
-    private var speciesCall: Call<PokemonSpeciesResponse>? = null
+    private val allPokemon = mutableListOf<PokemonResponse>()
+    private var currentTypeFilter: String = "all"
+    private val pendingCalls = mutableListOf<Call<*>>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.btnSearch.setOnClickListener {
-            searchPokemon()
+        adapter = PokemonAdapter(emptyList()) { pokemon ->
+            val intent = Intent(this, PokemonDetailActivity::class.java)
+            intent.putExtra(PokemonDetailActivity.EXTRA_POKEMON_NAME, pokemon.name)
+            startActivity(intent)
         }
 
-        binding.etPokemonSearch.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                searchPokemon()
-                true
-            } else {
-                false
+        binding.rvPokemonGrid.layoutManager = GridLayoutManager(this, 2)
+        binding.rvPokemonGrid.adapter = adapter
+
+        binding.chipGroupTypes.setOnCheckedStateChangeListener { group, checkedIds ->
+            val chip = checkedIds.firstOrNull()?.let { group.findViewById<Chip>(it) }
+            currentTypeFilter = (chip?.tag as? String) ?: "all"
+            loadPokemonForCurrentFilter()
+        }
+
+        binding.etSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                applySearchFilter(s?.toString().orEmpty())
             }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        loadPokemonForCurrentFilter()
+    }
+
+    private fun loadPokemonForCurrentFilter() {
+        showLoading()
+        cancelPendingCalls()
+        allPokemon.clear()
+
+        if (currentTypeFilter == "all") {
+            val call = RetrofitClient.apiService.getPokemonList(DEFAULT_LIMIT, 0)
+            pendingCalls.add(call)
+            call.enqueue(object : Callback<PokemonListResponse> {
+                override fun onResponse(
+                    call: Call<PokemonListResponse>,
+                    response: Response<PokemonListResponse>
+                ) {
+                    val names = response.body()?.results?.map { it.name } ?: emptyList()
+                    fetchPokemonDetails(names)
+                }
+
+                override fun onFailure(call: Call<PokemonListResponse>, t: Throwable) {
+                    if (!call.isCanceled) showError("Unable to load Pokémon list.")
+                }
+            })
+        } else {
+            val call = RetrofitClient.apiService.getPokemonByType(currentTypeFilter)
+            pendingCalls.add(call)
+            call.enqueue(object : Callback<TypeResponse> {
+                override fun onResponse(
+                    call: Call<TypeResponse>,
+                    response: Response<TypeResponse>
+                ) {
+                    val names = response.body()?.pokemon
+                        ?.map { it.pokemon.name }
+                        ?.take(DEFAULT_LIMIT) ?: emptyList()
+                    fetchPokemonDetails(names)
+                }
+
+                override fun onFailure(call: Call<TypeResponse>, t: Throwable) {
+                    if (!call.isCanceled) showError("Unable to load Pokémon for that type.")
+                }
+            })
         }
     }
 
-    private fun searchPokemon() {
-        val searchValue = binding.etPokemonSearch.text
-            .toString()
-            .trim()
-            .lowercase(Locale.ROOT)
-
-        if (searchValue.isEmpty()) {
-            binding.etPokemonSearch.error = "Enter a Pokémon name or ID."
+    private fun fetchPokemonDetails(names: List<String>) {
+        if (names.isEmpty()) {
+            showEmpty()
             return
         }
 
-        showLoading()
+        var remaining = names.size
+        val results = mutableListOf<PokemonResponse>()
 
-        pokemonCall?.cancel()
-        speciesCall?.cancel()
-
-        pokemonCall = RetrofitClient.apiService.getPokemon(searchValue)
-
-        pokemonCall?.enqueue(object : Callback<PokemonResponse> {
-
-            override fun onResponse(
-                call: Call<PokemonResponse>,
-                response: Response<PokemonResponse>
-            ) {
-                if (!response.isSuccessful) {
-                    val message = if (response.code() == 404) {
-                        "Pokémon not found."
-                    } else {
-                        "Unable to retrieve Pokémon. Error ${response.code()}."
-                    }
-
-                    showError(message)
-                    return
+        names.forEach { name ->
+            val call = RetrofitClient.apiService.getPokemon(name)
+            pendingCalls.add(call)
+            call.enqueue(object : Callback<PokemonResponse> {
+                override fun onResponse(call: Call<PokemonResponse>, response: Response<PokemonResponse>) {
+                    response.body()?.let { results.add(it) }
+                    remaining--
+                    if (remaining == 0) onAllDetailsLoaded(results)
                 }
 
-                val pokemon = response.body()
-
-                if (pokemon == null) {
-                    showError("The Pokémon information was empty.")
-                    return
-                }
-
-                loadSpeciesInformation(pokemon)
-            }
-
-            override fun onFailure(
-                call: Call<PokemonResponse>,
-                throwable: Throwable
-            ) {
-                if (!call.isCanceled) {
-                    showError(
-                        throwable.localizedMessage
-                            ?: "Unable to connect to PokeAPI."
-                    )
-                }
-            }
-        })
-    }
-
-    private fun loadSpeciesInformation(pokemon: PokemonResponse) {
-        speciesCall = RetrofitClient.apiService
-            .getPokemonSpecies(pokemon.id.toString())
-
-        speciesCall?.enqueue(object : Callback<PokemonSpeciesResponse> {
-
-            override fun onResponse(
-                call: Call<PokemonSpeciesResponse>,
-                response: Response<PokemonSpeciesResponse>
-            ) {
-                if (!response.isSuccessful) {
-                    showError(
-                        "Pokémon found, but species information could not be loaded."
-                    )
-                    return
-                }
-
-                val species = response.body()
-
-                if (species == null) {
-                    showError("The Pokémon species information was empty.")
-                    return
-                }
-
-                displayPokemon(pokemon, species)
-            }
-
-            override fun onFailure(
-                call: Call<PokemonSpeciesResponse>,
-                throwable: Throwable
-            ) {
-                if (!call.isCanceled) {
-                    showError(
-                        throwable.localizedMessage
-                            ?: "Unable to retrieve species information."
-                    )
-                }
-            }
-        })
-    }
-
-    private fun displayPokemon(
-        pokemon: PokemonResponse,
-        species: PokemonSpeciesResponse
-    ) {
-        val imageUrl =
-            pokemon.sprites.other?.officialArtwork?.frontDefault
-                ?: pokemon.sprites.frontDefault
-
-        Glide.with(this)
-            .load(imageUrl)
-            .placeholder(android.R.drawable.ic_menu_gallery)
-            .error(android.R.drawable.ic_menu_report_image)
-            .into(binding.ivPokemon)
-
-        val types = pokemon.types
-            .sortedBy { it.slot }
-            .joinToString(", ") {
-                formatName(it.type.name)
-            }
-
-        val abilities = pokemon.abilities
-            .sortedBy { it.slot }
-            .joinToString(", ") {
-                val abilityName = formatName(it.ability.name)
-
-                if (it.isHidden) {
-                    "$abilityName (Hidden)"
-                } else {
-                    abilityName
-                }
-            }
-
-        val description = species.flavorTextEntries
-            .firstOrNull { it.language.name == "en" }
-            ?.flavorText
-            ?.replace("\n", " ")
-            ?.replace("\u000C", " ")
-            ?.replace(Regex("\\s+"), " ")
-            ?.trim()
-            ?: "No English description available."
-
-        val category = species.genera
-            .firstOrNull { it.language.name == "en" }
-            ?.genus
-            ?: "Unknown"
-
-        val heightMeters = pokemon.height / 10.0
-        val weightKilograms = pokemon.weight / 10.0
-
-        binding.tvPokemonId.text = "ID: #${pokemon.id}"
-        binding.tvPokemonName.text = "Name: ${formatName(pokemon.name)}"
-        binding.tvPokemonTypes.text = "Types: $types"
-        binding.tvPokemonDescription.text = "Description: $description"
-
-        binding.tvPokemonHeight.text =
-            "Height: ${formatDecimal(heightMeters)} m"
-
-        binding.tvPokemonWeight.text =
-            "Weight: ${formatDecimal(weightKilograms)} kg"
-
-        binding.tvPokemonCategory.text = "Category: $category"
-        binding.tvPokemonAbilities.text = "Abilities: $abilities"
-
-        binding.tvPokemonGender.text =
-            "Gender: ${formatGender(species.genderRate)}"
-
-        binding.tvPokemonHealth.text =
-            createStatText(pokemon, "hp", "Health")
-
-        binding.tvPokemonAttack.text =
-            createStatText(pokemon, "attack", "Attack")
-
-        binding.tvPokemonDefense.text =
-            createStatText(pokemon, "defense", "Defense")
-
-        binding.tvPokemonSpecialAttack.text =
-            createStatText(
-                pokemon,
-                "special-attack",
-                "Special Attack"
-            )
-
-        binding.tvPokemonSpecialDefense.text =
-            createStatText(
-                pokemon,
-                "special-defense",
-                "Special Defense"
-            )
-
-        binding.tvPokemonSpeed.text =
-            createStatText(pokemon, "speed", "Speed")
-
-        binding.progressBar.visibility = View.GONE
-        binding.tvError.visibility = View.GONE
-        binding.resultContainer.visibility = View.VISIBLE
-        binding.btnSearch.isEnabled = true
-    }
-
-    private fun createStatText(
-        pokemon: PokemonResponse,
-        statName: String,
-        displayName: String
-    ): String {
-        val stat = pokemon.stats.firstOrNull {
-            it.stat.name == statName
-        }
-
-        return if (stat != null) {
-            "$displayName: ${stat.baseStat}"
-        } else {
-            "$displayName: Unknown"
-        }
-    }
-
-    private fun formatGender(genderRate: Int): String {
-        if (genderRate == -1) {
-            return "Genderless"
-        }
-
-        val femalePercentage = genderRate / 8.0 * 100.0
-        val malePercentage = 100.0 - femalePercentage
-
-        return "Male ${formatDecimal(malePercentage)}%, " +
-                "Female ${formatDecimal(femalePercentage)}%"
-    }
-
-    private fun formatName(value: String): String {
-        return value
-            .split("-", " ")
-            .filter { it.isNotBlank() }
-            .joinToString(" ") { word ->
-                word.replaceFirstChar { character ->
-                    if (character.isLowerCase()) {
-                        character.titlecase(Locale.ROOT)
-                    } else {
-                        character.toString()
+                override fun onFailure(call: Call<PokemonResponse>, t: Throwable) {
+                    if (!call.isCanceled) {
+                        remaining--
+                        if (remaining == 0) onAllDetailsLoaded(results)
                     }
                 }
-            }
+            })
+        }
     }
 
-    private fun formatDecimal(value: Double): String {
-        return if (value % 1.0 == 0.0) {
-            value.toInt().toString()
+    private fun onAllDetailsLoaded(results: List<PokemonResponse>) {
+        allPokemon.clear()
+        allPokemon.addAll(results.sortedBy { it.id })
+        hideLoading()
+        applySearchFilter(binding.etSearch.text?.toString().orEmpty())
+    }
+
+    private fun applySearchFilter(query: String) {
+        val trimmed = query.trim().lowercase(Locale.ROOT)
+        val filtered = if (trimmed.isEmpty()) {
+            allPokemon
         } else {
-            String.format(Locale.US, "%.1f", value)
+            allPokemon.filter { it.name.contains(trimmed) }
         }
+        adapter.submitList(filtered)
+        binding.tvPokemonCount.text = "${filtered.size} Pokemons"
+        binding.tvEmptyState.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
+        binding.tvEmptyState.text = "No Pokemon found."
     }
 
     private fun showLoading() {
         binding.progressBar.visibility = View.VISIBLE
-        binding.resultContainer.visibility = View.GONE
-        binding.tvError.visibility = View.GONE
-        binding.btnSearch.isEnabled = false
+        binding.rvPokemonGrid.visibility = View.GONE
+        binding.tvEmptyState.visibility = View.GONE
+    }
+
+    private fun hideLoading() {
+        binding.progressBar.visibility = View.GONE
+        binding.rvPokemonGrid.visibility = View.VISIBLE
+    }
+
+    private fun showEmpty() {
+        hideLoading()
+        adapter.submitList(emptyList())
+        binding.tvPokemonCount.text = "0 Pokemons"
+        binding.tvEmptyState.visibility = View.VISIBLE
+        binding.tvEmptyState.text = "No Pokemon found."
     }
 
     private fun showError(message: String) {
-        binding.progressBar.visibility = View.GONE
-        binding.resultContainer.visibility = View.GONE
-        binding.tvError.visibility = View.VISIBLE
-        binding.tvError.text = message
-        binding.btnSearch.isEnabled = true
+        hideLoading()
+        binding.tvEmptyState.visibility = View.VISIBLE
+        binding.tvEmptyState.text = message
+    }
 
-        Toast.makeText(
-            this,
-            message,
-            Toast.LENGTH_SHORT
-        ).show()
+    private fun cancelPendingCalls() {
+        pendingCalls.forEach { it.cancel() }
+        pendingCalls.clear()
     }
 
     override fun onDestroy() {
-        pokemonCall?.cancel()
-        speciesCall?.cancel()
-
+        cancelPendingCalls()
         super.onDestroy()
+    }
+
+    companion object {
+        private const val DEFAULT_LIMIT = 20
     }
 }
